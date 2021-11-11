@@ -1,19 +1,21 @@
-// rf95_server.pde
+// rf95_server.ino
 // -*- mode: C++ -*-
-// Example sketch showing how to create a simple messageing server
-// with the RH_RF95 class. RH_RF95 class does not provide for addressing or
-// reliability, so you should only use RH_RF95  if you do not need the higher
-// level messaging abilities.
-// It is designed to work with the other example rf95_client
-// Tested with Automato Sensor Module.
+// 
 
 #include <SPI.h>
 #include <RH_RF95.h>
+#include <registermsg.hh>
+#include <Automato.h>
 
 RH_RF95 rf95(PIN_LORA_CS, PIN_LORA_IRQ); // Slave select, interrupt pin for Automato Sensor Module.
 
+#define REGISTER_COUNT 100
+char registers[REGISTER_COUNT];
+#define REGISTER_LED 0
 
-void setup() 
+#define REGISTER_LAYOUT_VERSION 1
+
+void setup()
 {
   pinMode(PIN_LORA_RST, INPUT); // Let the pin float.
   pinMode(PIN_LED, OUTPUT);
@@ -33,38 +35,61 @@ void setup()
   if (!rf95.init())
     Serial.println("init failed");  
   // Defaults after init are 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
+  // specify by country?
   rf95.setFrequency(915.0);
 
   // The default transmitter power is 13dBm, using PA_BOOST.
   // You can set transmitter powers from 5 to 23 dBm:
   //  driver.setTxPower(23);
+
+  // print my mac id.
+  Serial.println("rf95 server");
+
+  Serial.print("my mac address:");
+  Serial.println(Automato::macAddress());
+
+
+  // init register array to zero.
+  for (int i; i < REGISTER_COUNT; ++i)
+    registers[i] = 0;
 }
 
 void loop()
 {
+  msgbuf mb;
+
+  // get my id.
+
+  
   if (rf95.available())
   {
     // Should be a message for us now   
-    uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
-    uint8_t len = sizeof(buf);
+    // uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
+    uint8_t len = sizeof(mb.buf);
     float temp_data;
-    if (rf95.recv(buf, &len))
+    if (rf95.recv(mb.buf, &len))
     {
-      memcpy(&temp_data, buf, sizeof(temp_data));
+      // important to copy out?
+      // memcpy(&temp_data, mb.buf, sizeof(temp_data));
       digitalWrite(PIN_LED, HIGH);
       Serial.print("got data: ");
-      Serial.println(temp_data);
+      printMessage(mb.msg);
       
       // Send a reply
       uint8_t ack[] = "ACK";
       rf95.send(ack, sizeof(ack));
       rf95.waitPacketSent();
       Serial.println("Sent a reply");
-       digitalWrite(PIN_LED, LOW);
+      digitalWrite(PIN_LED, LOW);
     }
     else
     {
       Serial.println("recv failed");
+    }
+
+    String s = Serial.readString();
+    if (s != "") {
+      // interpret string command.
     }
   }
 }
