@@ -8,8 +8,7 @@
 // Tested with Automato Sensor Module.
 
 #include <SPI.h>
-#include <RH_RF95.h>
-#include <registermsg.hh>
+#include <AutomatoMsg.h>
 #include <pins_arduino.h>
 #include <Automato.h>
 
@@ -51,86 +50,50 @@ void setup()
 void loop()
 {
   // build a test message.
-  message test;
+  msgbuf test;
 
   uint64_t targetmac = 30960684215092;
 
   uint64_t mymac = Automato::macAddress(); 
 
-  /*
-  char macbuf[6];
+  setupMessage(test.msg, mymac, targetmac, mt_write, PIN_LED, 1, (on ? 1 : 0));
 
-  uint64_t testmac;
-
-  Serial.print("mymac");
-  Serial.println(mymac);
-  memcpy(macbuf, (const char*)&mymac, 6);
-  const char *cmac = (const char*)&mymac;
-  Serial.print("mymac0: ");
-  Serial.println((int)macbuf[0]);
-  Serial.print("mymac1: ");
-  Serial.println((int)macbuf[1]);
-  Serial.print("mymac2: ");
-  Serial.println((int)macbuf[2]);
-  Serial.print("mymac3: ");
-  Serial.println((int)macbuf[3]);
-  Serial.print("mymac4: ");
-  Serial.println((int)macbuf[4]);
-  Serial.print("mymac5: ");
-  Serial.println((int)macbuf[5]);
-
-  memcpy((char*)&testmac, macbuf, 6);
-  Serial.print("testmac");
-  Serial.println(testmac);
-
-  cmac = (const char*)&testmac;
-  Serial.print("testmac0: ");
-  Serial.println((int)macbuf[0]);
-  Serial.print("testmac1: ");
-  Serial.println((int)macbuf[1]);
-  Serial.print("testmac2: ");
-  Serial.println((int)macbuf[2]);
-  Serial.print("testmac3: ");
-  Serial.println((int)macbuf[3]);
-  Serial.print("testmac4: ");
-  Serial.println((int)macbuf[4]);
-  Serial.print("testmac5: ");
-  Serial.println((int)macbuf[5]);
-
-  Serial.print("targetmac");
-  Serial.println(targetmac);
-  */
-
-  setupMessage(test, mymac, targetmac, mt_write, PIN_LED, 1, (on ? 1 : 0));
-
-  // memcpy(test.frommac, ((const char*)&mymac), 4); 
-  // memcpy(test.tomac, ((const char*)&targetmac), 4); 
-  // test.type = mt_write;
-  // test.address = 0;
-  // test.length = 1;
-  // test.payload = 1;
-
-  // Serial.println("Sending message:");
-  // printMessage(test);
-
-  // Serial.println("Sending to rf95_server");
-  // Send a message to rf95_server
-  // float sample_data = 1.23;
-  // rf95.send((uint8_t*)&sample_data, sizeof(sample_data));
-  rf95.send((uint8_t*)&test, sizeof(message));
-  
+  rf95.send((uint8_t*)&test.msg, sizeof(message));
   rf95.waitPacketSent();
+
   // Now wait for a reply
-  uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
-  uint8_t len = sizeof(buf);
+  uint8_t len = sizeof(test.buf);
 
   if (rf95.waitAvailableTimeout(3000))
   { 
     // Should be a reply message for us now   
-    if (rf95.recv(buf, &len))
+    if (rf95.recv(test.buf, &len))
     {
-      // Serial.print("got reply: ");
-      // Serial.println((char*)buf);
+      // what happened?  should be an ack.
+      switch (test.msg.type) 
+      {
+        case mt_ack:
+          switch (test.msg.payload) 
+          {
+            case ac_success:
+              Serial.println("ac_success");
+              break;
+            case ac_invalid_address:
+              Serial.println("ac_invalid_address");
+              break;
+            case ac_invalid_message_type:
+              Serial.println("ac_invalid_message_type");
+              break;
+            default:
+              Serial.println("unknown ack code");
+              break;
+          }
+          break;
+        default:
+          Serial.print("unexpected message type; expected ack, got ");
+          Serial.println(test.msg.type);
+          break;
+      }
       on = !on;
     }
     else
@@ -142,10 +105,4 @@ void loop()
   {
     Serial.println("No reply, is rf95_server running?");
   }
-  // delay(100);
-
-    // String s = Serial.readString();
-    // if (s != "") {
-    //   // interpret string command.
-    // }
 }
