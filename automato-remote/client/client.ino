@@ -1,11 +1,5 @@
 // client.ino
 // -*- mode: C++ -*-
-// Example sketch showing how to create a simple messageing client
-// with the RH_RF95 class. RH_RF95 class does not provide for addressing or
-// reliability, so you should only use RH_RF95 if you do not need the higher
-// level messaging abilities.
-// It is designed to work with the other example rf95_server
-// Tested with Automato Sensor Module.
 
 #include <SPI.h>
 #include <AutomatoMsg.h>
