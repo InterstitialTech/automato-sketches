@@ -71,25 +71,38 @@ void loop()
     {
       // important to copy out?
       // memcpy(&temp_data, mb.buf, sizeof(temp_data));
-      digitalWrite(PIN_LED, HIGH);
-      Serial.print("got data: ");
-      printMessage(mb.msg);
+      // digitalWrite(PIN_LED, HIGH);
+      // Serial.print("got data: ");
+      // printMessage(mb.msg);
+      // Serial.println("got data");
       
       // Send a reply
       uint8_t ack[] = "ACK";
       rf95.send(ack, sizeof(ack));
       rf95.waitPacketSent();
-      Serial.println("Sent a reply");
-      digitalWrite(PIN_LED, LOW);
+      // Serial.print("got data");
+      // Serial.println("Sent a reply");
+
+      switch (mb.msg.type) {
+        case mt_write:
+          if (0 <= mb.msg.address && mb.msg.address < 40) {
+            if (mb.msg.payload == 0) {
+              // Serial.print("writing LOW to: ");
+              // Serial.println(mb.msg.address);
+              digitalWrite(mb.msg.address, LOW);
+            } else if (mb.msg.payload == 1) {
+              // Serial.print("writing HIGH to: ");
+              // Serial.println(mb.msg.address);
+              digitalWrite(mb.msg.address, HIGH);
+            }
+          };
+          break;
+      };
     }
     else
     {
       Serial.println("recv failed");
     }
 
-    String s = Serial.readString();
-    if (s != "") {
-      // interpret string command.
-    }
   }
 }

@@ -15,6 +15,8 @@
 
 RH_RF95 rf95(PIN_LORA_CS, PIN_LORA_IRQ); // Slave select, interrupt pin for Automato Sensor Module.
 
+bool on;
+
 void setup() 
 {
   pinMode(PIN_LORA_RST, INPUT); // Let the pin float.
@@ -42,6 +44,8 @@ void setup()
   // The default transmitter power is 13dBm, using PA_BOOST.
   // You can set transmitter powers from 5 to 23 dBm:
   //  driver.setTxPower(23);
+
+  on = true;
 }
 
 void loop()
@@ -53,6 +57,7 @@ void loop()
 
   uint64_t mymac = Automato::macAddress(); 
 
+  /*
   char macbuf[6];
 
   uint64_t testmac;
@@ -94,8 +99,9 @@ void loop()
 
   Serial.print("targetmac");
   Serial.println(targetmac);
+  */
 
-  setupMessage(test, mymac,targetmac, mt_write, 0, 1, 1);
+  setupMessage(test, mymac, targetmac, mt_write, PIN_LED, 1, (on ? 1 : 0));
 
   // memcpy(test.frommac, ((const char*)&mymac), 4); 
   // memcpy(test.tomac, ((const char*)&targetmac), 4); 
@@ -104,10 +110,10 @@ void loop()
   // test.length = 1;
   // test.payload = 1;
 
-  Serial.println("Sending message:");
-  printMessage(test);
+  // Serial.println("Sending message:");
+  // printMessage(test);
 
-  Serial.println("Sending to rf95_server");
+  // Serial.println("Sending to rf95_server");
   // Send a message to rf95_server
   // float sample_data = 1.23;
   // rf95.send((uint8_t*)&sample_data, sizeof(sample_data));
@@ -122,9 +128,10 @@ void loop()
   { 
     // Should be a reply message for us now   
     if (rf95.recv(buf, &len))
-   {
-      Serial.print("got reply: ");
-      Serial.println((char*)buf);
+    {
+      // Serial.print("got reply: ");
+      // Serial.println((char*)buf);
+      on = !on;
     }
     else
     {
@@ -135,5 +142,10 @@ void loop()
   {
     Serial.println("No reply, is rf95_server running?");
   }
-  delay(400);
+  // delay(100);
+
+    // String s = Serial.readString();
+    // if (s != "") {
+    //   // interpret string command.
+    // }
 }
