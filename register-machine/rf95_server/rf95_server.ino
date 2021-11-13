@@ -83,21 +83,35 @@ void loop()
       // Serial.print("got data");
       // Serial.println("Sent a reply");
 
-      switch (mb.msg.type) {
-        case mt_write:
-          if (0 <= mb.msg.address && mb.msg.address < 40) {
-            if (mb.msg.payload == 0) {
-              // Serial.print("writing LOW to: ");
-              // Serial.println(mb.msg.address);
-              digitalWrite(mb.msg.address, LOW);
-            } else if (mb.msg.payload == 1) {
-              // Serial.print("writing HIGH to: ");
-              // Serial.println(mb.msg.address);
-              digitalWrite(mb.msg.address, HIGH);
-            }
-          };
-          break;
-      };
+      printMessage(mb.msg);
+
+      uint64_t tomac = 0;
+      memcpy(((char*)&tomac), &mb.msg.tomac, 6); 
+      
+      if (tomac == Automato::macAddress()) 
+      {
+        switch (mb.msg.type) {
+          case mt_write:
+            if (0 <= mb.msg.address && mb.msg.address < 40) {
+              if (mb.msg.payload == 0) {
+                // Serial.print("writing LOW to: ");
+                // Serial.println(mb.msg.address);
+                digitalWrite(mb.msg.address, LOW);
+              } else if (mb.msg.payload == 1) {
+                // Serial.print("writing HIGH to: ");
+                // Serial.println(mb.msg.address);
+                digitalWrite(mb.msg.address, HIGH);
+              }
+            };
+            break;
+        };
+      }
+      else {
+        Serial.print("ignoring message for ");
+        Serial.println(tomac);
+        Serial.print("because my mac is ");
+        Serial.println(Automato::macAddress());
+      }
     }
     else
     {
