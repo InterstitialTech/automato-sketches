@@ -54,7 +54,7 @@ void loop()
     Serial.println(len);
 
     for (int p = 0; p < packets_per_size; ++p) {
-      sendmsg(&sendbuf, len);
+      sendmsg(sendbuf, len);
     }
   }
 }
