@@ -88,6 +88,7 @@ void sendmsg(uint8_t *sendbuf, size_t size)
   }
   else
   {
-    Serial.println("No reply, is rf95_server running?");
+    Serial.print("No reply; message length, ");
+    Serial.println(size);
   }
 }
