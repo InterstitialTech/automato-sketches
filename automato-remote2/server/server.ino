@@ -6,7 +6,18 @@
 #include <AutomatoMsg.h>
 #include <Automato.h>
 
-Automato automato(2);
+// ideally this would go in a shared header file,
+struct ServerData {
+  char name[25];
+  float targettemp;
+  uint64_t macAddress;
+  float temperature;
+  float humidity;
+};
+
+ServerData serverdata;
+
+Automato automato(2, (void*)&serverdata, sizeof(serverdata));
 
 void setup()
 {
@@ -29,6 +40,14 @@ void setup()
 
   Serial.print("my mac address:");
   Serial.println(Automato::macAddress());
+
+
+  strcpy(serverdata.name, "theserver");
+  serverdata.targettemp = 50;
+  serverdata.macAddress = automato.macAddress();
+  serverdata.temperature = automato.getTemperature();
+  serverdata.humidity = automato.getHumidity();
+  
 }
 
 void loop()

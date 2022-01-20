@@ -6,7 +6,16 @@
 #include <pins_arduino.h>
 #include <Automato.h>
 
-Automato automato(1);
+// ideally this would go in a shared header file,
+struct ServerData {
+  char name[25];
+  float targettemp;
+  uint64_t macAddress;
+  float temperature;
+  float humidity;
+};
+
+Automato automato(1, NULL, 0);
 
 bool on;
 
@@ -37,6 +46,8 @@ void setup()
 
 void loop()
 {
+  Serial.println("automato remote control client loop");
+
   // the automato we're going to control remotely.
   uint8_t targetaddr = 2;
 
@@ -50,4 +61,19 @@ void loop()
   {
     Serial.println("write failed!");
   }
+
+  char name[sizeof(ServerData::name)];
+  if (automato.remoteMemRead(targetaddr,
+                             (uint16_t)offsetof(ServerData, name),
+                             (uint8_t)sizeof(ServerData::name),
+                             (void*)name))
+  {
+    Serial.print("retrieved remote name: ");
+    Serial.println(name);
+  }
+  else 
+  {
+    Serial.println("failed to retreive remote name!");
+  }
+
 }
