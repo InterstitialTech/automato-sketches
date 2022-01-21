@@ -73,7 +73,7 @@ void loop()
   }
   else 
   {
-    Serial.println("failed to retreive remote name!");
+    Serial.println("failed to retrieve remote name!");
   }
 
 }
