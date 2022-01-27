@@ -43,14 +43,22 @@ void setup()
 
 
   strcpy(serverdata.name, "theserver");
-  serverdata.targettemp = 50;
+  serverdata.targettemp = 70;
   serverdata.macAddress = automato.macAddress();
   serverdata.temperature = automato.getTemperature();
   serverdata.humidity = automato.getHumidity();
+
+ //  pinMode(A7, INPUT);
   
 }
 
 void loop()
 {
   automato.doRemoteControl();
+
+  Serial.print("A7: ");
+  Serial.println(digitalRead(A7));
+
+  // Serial.print("targettemp: ");
+  // Serial.println(serverdata.targettemp);
 }

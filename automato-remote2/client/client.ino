@@ -17,6 +17,8 @@ struct ServerData {
 
 Automato automato(1, NULL, 0);
 
+uint8_t serveraddr(2);
+
 bool on;
 
 void setup() 
@@ -42,16 +44,22 @@ void setup()
   Serial.println(Automato::macAddress());
 
   on = true;
+
+  pinMode(A0, INPUT);
+  pinMode(A1, INPUT);
+  pinMode(A6, INPUT);
+  pinMode(A7, INPUT);
 }
 
 void loop()
 {
-  Serial.println("automato remote control client loop");
+  // Serial.println("automato remote control client loop");
 
+  /*
   // the automato we're going to control remotely.
-  uint8_t targetaddr = 2;
+  uint8_t serveraddr = 2;
 
-  if (automato.remoteDigitalWrite(targetaddr, PIN_LED, (on ? 1 : 0))) 
+  if (automato.remoteDigitalWrite(serveraddr, PIN_LED, (on ? 1 : 0))) 
   {
     Serial.print("successful write: ");
     Serial.println(on);
@@ -63,10 +71,15 @@ void loop()
   }
 
   char name[sizeof(ServerData::name)];
-  if (automato.remoteMemRead(targetaddr,
-                             (uint16_t)offsetof(ServerData, name),
-                             (uint8_t)sizeof(ServerData::name),
-                             (void*)name))
+  // if (automato.remoteMemRead(serveraddr,
+  //                            (uint16_t)offsetof(ServerData, name),
+  //                            (uint8_t)sizeof(ServerData::name),
+  //                            (void*)name))
+  if (REMOTE_MEMREAD(automato,
+                     serveraddr,
+                     ServerData,
+                     name,
+                     name))
   {
     Serial.print("retrieved remote name: ");
     Serial.println(name);
@@ -75,5 +88,48 @@ void loop()
   {
     Serial.println("failed to retrieve remote name!");
   }
+  float temp = 50;
+  // if (automato.remoteMemWrite(serveraddr, 
+  //                            (uint16_t)offsetof(ServerData, servertemp),
+  //                            (uint16_t)sizeof(ServerData::servertemp),
+  //                            &temp))
+  if (REMOTE_MEMWRITE(automato,
+                     serveraddr,
+                     ServerData,
+                     servertemp,
+                     &temp))
+  {
+    Serial.print("wrote remote temp: ");
+    Serial.println(temp);
+  }
+  else 
+  {
+    Serial.println("failed to write remote temp!");
+  }
+  */
+
+  Serial.print(" A0: ");
+  Serial.print(digitalRead(A0));
+  Serial.print(" A1: ");
+  Serial.print(digitalRead(A1));
+  Serial.print(" A6: ");
+  Serial.print(digitalRead(A6));
+  Serial.print(" A7: ");
+  Serial.println(digitalRead(A7));
+
+  uint8_t a7;
+  automato.remotePinMode(serveraddr, A7, INPUT);
+  if (automato.remoteDigitalRead(serveraddr, A7, &a7)) 
+  {
+    Serial.print("read remote pin: ");
+    Serial.println(a7);
+
+    digitalWrite(PIN_LED, a7);
+  }
+  else 
+  {
+    Serial.println("read remote pin failed!");
+  }
+
 
 }
