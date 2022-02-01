@@ -59,6 +59,6 @@ void loop()
   Serial.print("A7: ");
   Serial.println(digitalRead(A7));
 
-  // Serial.print("targettemp: ");
-  // Serial.println(serverdata.targettemp);
+  Serial.print("targettemp: ");
+  Serial.println(serverdata.targettemp);
 }

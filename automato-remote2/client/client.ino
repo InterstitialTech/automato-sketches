@@ -15,6 +15,7 @@ struct ServerData {
   float humidity;
 };
 
+// the automato we're going to control remotely.
 Automato automato(1, NULL, 0);
 
 uint8_t serveraddr(2);
@@ -49,16 +50,12 @@ void setup()
   pinMode(A1, INPUT);
   pinMode(A6, INPUT);
   pinMode(A7, INPUT);
+
 }
 
 void loop()
 {
-  // Serial.println("automato remote control client loop");
-
-  /*
-  // the automato we're going to control remotely.
-  uint8_t serveraddr = 2;
-
+  // write to a pin on the remote automato.
   if (automato.remoteDigitalWrite(serveraddr, PIN_LED, (on ? 1 : 0))) 
   {
     Serial.print("successful write: ");
@@ -70,34 +67,26 @@ void loop()
     Serial.println("write failed!");
   }
 
-  char name[sizeof(ServerData::name)];
-  // if (automato.remoteMemRead(serveraddr,
-  //                            (uint16_t)offsetof(ServerData, name),
-  //                            (uint8_t)sizeof(ServerData::name),
-  //                            (void*)name))
-  if (REMOTE_MEMREAD(automato,
-                     serveraddr,
-                     ServerData,
-                     name,
-                     name))
+  // read a char field from the remote.
+  char remotename[sizeof(ServerData::name)];
+  if (automato.remote_memread(serveraddr,
+                             ServerData,
+                             name,
+                             remotename))
   {
     Serial.print("retrieved remote name: ");
-    Serial.println(name);
+    Serial.println(remotename);
   }
   else 
   {
     Serial.println("failed to retrieve remote name!");
   }
-  float temp = 50;
-  // if (automato.remoteMemWrite(serveraddr, 
-  //                            (uint16_t)offsetof(ServerData, servertemp),
-  //                            (uint16_t)sizeof(ServerData::servertemp),
-  //                            &temp))
-  if (REMOTE_MEMWRITE(automato,
-                     serveraddr,
-                     ServerData,
-                     servertemp,
-                     &temp))
+
+  float temp = 75;
+  if (automato.remote_memwrite(serveraddr,
+                               ServerData,
+                               targettemp,
+                               &temp))
   {
     Serial.print("wrote remote temp: ");
     Serial.println(temp);
@@ -106,17 +95,8 @@ void loop()
   {
     Serial.println("failed to write remote temp!");
   }
-  */
 
-  Serial.print(" A0: ");
-  Serial.print(digitalRead(A0));
-  Serial.print(" A1: ");
-  Serial.print(digitalRead(A1));
-  Serial.print(" A6: ");
-  Serial.print(digitalRead(A6));
-  Serial.print(" A7: ");
-  Serial.println(digitalRead(A7));
-
+  // read digital status of a pin on the remote.
   uint8_t a7;
   automato.remotePinMode(serveraddr, A7, INPUT);
   if (automato.remoteDigitalRead(serveraddr, A7, &a7)) 
@@ -131,5 +111,40 @@ void loop()
     Serial.println("read remote pin failed!");
   }
 
+  float temperature;
+  float humidity;
+  if (automato.remoteTemperature(serveraddr, temperature))
+  {
+    Serial.print("remote temperature: ");
+    Serial.println(temperature);
+  }
+  else
+  {
+    Serial.println("error retrieving temperature");
+  }
+  if (automato.remoteHumidity(serveraddr, humidity))
+  {
+    Serial.print("remote humidity: ");
+    Serial.println(humidity);
+  }
+  else
+  {
+    Serial.println("error retrieving humidity");
+  }
 
+  RemoteInfo serverinfo;
+  if (automato.remoteAutomatoInfo(serveraddr, serverinfo)) 
+  {
+    Serial.println("remote server info:");
+    Serial.print("protoversion: ");
+    Serial.println(serverinfo.protoversion);
+    Serial.print("macAddress: ");
+    Serial.println(serverinfo.macAddress);
+    Serial.print("datalen: ");
+    Serial.println(serverinfo.datalen);
+  }
+  else
+  {
+    Serial.print("failed to retrieve remote info!");
+  }
 }
