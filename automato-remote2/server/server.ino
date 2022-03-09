@@ -17,7 +17,7 @@ struct ServerData {
 
 ServerData serverdata;
 
-Automato automato(2, (void*)&serverdata, sizeof(serverdata));
+Automato automato(2, (void*)&serverdata, sizeof(serverdata), true);
 
 void setup()
 {
@@ -48,7 +48,10 @@ void setup()
   serverdata.temperature = automato.getTemperature();
   serverdata.humidity = automato.getHumidity();
 
- //  pinMode(A7, INPUT);
+  pinMode(A0, INPUT);
+  pinMode(A1, INPUT);
+//  pinMode(A6, INPUT);
+  pinMode(A7, INPUT);
   
 }
 
@@ -56,9 +59,12 @@ void loop()
 {
   automato.doRemoteControl();
 
-  Serial.print("A7: ");
+  Serial.print("A0 A1 A6 A7: ");
+  Serial.print(digitalRead(A0));
+  Serial.print(" ");
+  Serial.print(digitalRead(A1));
+  Serial.print(" ");
+  Serial.print(analogRead(A6));
+  Serial.print(" ");
   Serial.println(digitalRead(A7));
-
-  Serial.print("targettemp: ");
-  Serial.println(serverdata.targettemp);
 }
