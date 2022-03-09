@@ -16,7 +16,7 @@ struct ServerData {
 };
 
 // the automato we're going to control remotely.
-Automato automato(1, NULL, 0);
+Automato automato(1, NULL, 0, true);
 
 uint8_t serveraddr(2);
 
@@ -111,6 +111,18 @@ void loop()
     Serial.println(ar.as_string());
   }
 
+  // write to a pin on the remote automato.
+  if (automato.remoteDigitalWrite(serveraddr, PIN_LED, (on ? 1 : 0))) 
+  {
+    Serial.print("successful write: ");
+    Serial.println(on);
+    on = !on;
+  }
+  else 
+  {
+    Serial.println("write failed!");
+  }
+
   // read a char field from the remote.
   char remotename[sizeof(ServerData::name)];
   if (ar = automato.remote_memread(serveraddr,
@@ -127,6 +139,7 @@ void loop()
     Serial.println(ar.as_string());
   }
 
+  // write a value to the ServerData memory map on the report.
   float temp = 75;
   if (ar = automato.remote_memwrite(serveraddr,
                                ServerData,
@@ -150,6 +163,7 @@ void loop()
     Serial.print("read remote pin: ");
     Serial.println(a7);
 
+    // write the value from the remote board to our LED.
     digitalWrite(PIN_LED, a7);
   }
   else 
@@ -158,6 +172,7 @@ void loop()
     Serial.println(ar.as_string());
   }
 
+  // read remote temperature and humidity sensors.
   float temperature;
   float humidity;
   if (ar = automato.remoteTemperature(serveraddr, temperature))
@@ -182,6 +197,7 @@ void loop()
     Serial.println(ar.as_string());
   }
 
+  // remote general info.
   RemoteInfo serverinfo;
   if (ar = automato.remoteAutomatoInfo(serveraddr, serverinfo)) 
   {
@@ -199,4 +215,17 @@ void loop()
     Serial.println(ar.as_string());
   }
 
+  // read analog input value from the remote.
+  uint16_t a6;
+  if (automato.remoteAnalogRead(serveraddr, A6, &a6)) 
+  {
+    Serial.print("remote pin reading: ");
+    Serial.println(a6);
+  }
+  else
+  {
+    Serial.println("failed");
+  }
+
+  delay(500);
 }
