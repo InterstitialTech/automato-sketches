@@ -34,7 +34,7 @@ void setup()
   
   Serial.begin(115200);
 
-  automato.init();
+  automato.init(915.0, 20);
 
   Serial.println("automato remote control server");
 
@@ -50,14 +50,24 @@ void setup()
 
   pinMode(A0, INPUT);
   pinMode(A1, INPUT);
-//  pinMode(A6, INPUT);
+  pinMode(A6, INPUT);
   pinMode(A7, INPUT);
-  
+
 }
+
+
+AutomatoResult ar;
 
 void loop()
 {
-  automato.doRemoteControl();
+  if (!(ar = automato.doRemoteControl())) 
+  {
+    Serial.println("-------- failure ---------");
+    Serial.println("error from doRemoteControl():");
+    Serial.println(ar.as_string());
+    Serial.print("error code:");
+    Serial.println(ar.resultCode());
+  }
 
   Serial.print("A0 A1 A6 A7: ");
   Serial.print(digitalRead(A0));

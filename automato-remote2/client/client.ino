@@ -38,7 +38,7 @@ void setup()
 
   Serial.println("automato remote control client");
 
-  automato.init();
+  automato.init(915.0, 20);
 
   // print my mac id.
   Serial.print("my mac address:");
@@ -52,75 +52,24 @@ void setup()
   pinMode(A7, INPUT);
 }
 
-// AutomatoResult serialMessage(ResultCode rc) {
-//   Serial.println(str);
-//   return ret;
-// }
-
 void loop()
 {
-  /*
-  AutomatoResult ar;
-  auto b = (ar = AutomatoResult::fromResultCode(rc_ok)) && 
-           (ar = AutomatoResult::fromResultCode(rc_ok)) && 
-           (ar = AutomatoResult::fromResultCode(rc_invalid_pin_number));
-
-  Serial.print("ar: ");
-  Serial.println(ar.as_string());
-
-  Serial.println(b);
- 
-  { 
-    auto e = AutomatoResult::fromResultCode(rc_invalid_mem_address);
-    Serial.println(e.as_string());
-  }
-
-  { 
-    auto e = AutomatoResult::fromResultCode(rc_invalid_mem_length);
-    Serial.println(e.as_string());
-  }
-
-  { 
-    auto e = AutomatoResult::fromResultCode(rc_invalid_message_type);
-    Serial.println(e.as_string());
-  }
-
-  { 
-    auto e = AutomatoResult::fromResultCode(rc_invalid_pin_number);
-    Serial.println(e.as_string());
-  }
-
-  { 
-    auto e = AutomatoResult::fromResultCode(rc_invalid_reply_message);
-    Serial.println(e.as_string());
-  }
-  */
+  Serial.println("----------------------- test start ---------------------");
 
   AutomatoResult ar;
- 
+
   // write to a pin on the remote automato.
   if (ar = automato.remoteDigitalWrite(serveraddr, PIN_LED, (on ? 1 : 0))) 
   {
-    Serial.print("successful write: ");
+    Serial.print("successful remoteDigitalWrite: ");
     Serial.println(on);
     on = !on;
   }
   else 
   {
-    Serial.println("write failed!");
+    Serial.println("-------- failure ---------");
+    Serial.println("remoteDigitalWrite failed!");
     Serial.println(ar.as_string());
-  }
-
-  // write to a pin on the remote automato.
-  if (automato.remoteDigitalWrite(serveraddr, PIN_LED, (on ? 1 : 0))) 
-  {
-    Serial.print("successful write: ");
-    Serial.println(on);
-    on = !on;
-  }
-  else 
-  {
-    Serial.println("write failed!");
   }
 
   // read a char field from the remote.
@@ -135,6 +84,7 @@ void loop()
   }
   else 
   {
+    Serial.println("-------- failure ---------");
     Serial.println("failed to retrieve remote name!");
     Serial.println(ar.as_string());
   }
@@ -151,6 +101,7 @@ void loop()
   }
   else 
   {
+    Serial.println("-------- failure ---------");
     Serial.println("failed to write remote temp!");
     Serial.println(ar.as_string());
   }
@@ -168,6 +119,7 @@ void loop()
   }
   else 
   {
+    Serial.println("-------- failure ---------");
     Serial.println("read remote pin failed!");
     Serial.println(ar.as_string());
   }
@@ -182,6 +134,7 @@ void loop()
   }
   else
   {
+    Serial.println("-------- failure ---------");
     Serial.println("error retrieving temperature");
     Serial.println(ar.as_string());
   }
@@ -193,6 +146,7 @@ void loop()
   }
   else
   {
+    Serial.println("-------- failure ---------");
     Serial.println("error retrieving humidity");
     Serial.println(ar.as_string());
   }
@@ -211,20 +165,23 @@ void loop()
   }
   else
   {
+    Serial.println("-------- failure ---------");
     Serial.println("failed to retrieve remote info!");
     Serial.println(ar.as_string());
   }
 
   // read analog input value from the remote.
   uint16_t a6;
-  if (automato.remoteAnalogRead(serveraddr, A6, &a6)) 
+  if (ar = automato.remoteAnalogRead(serveraddr, A6, &a6)) 
   {
-    Serial.print("remote pin reading: ");
+    Serial.print("remoteAnalogRead: ");
     Serial.println(a6);
   }
   else
   {
-    Serial.println("failed");
+    Serial.println("-------- failure ---------");
+    Serial.println("error reading remote analog pin");
+    Serial.println(ar.as_string());
   }
 
   delay(500);
