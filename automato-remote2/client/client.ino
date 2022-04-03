@@ -15,9 +15,9 @@ struct ServerData {
   float humidity;
 };
 
-// the automato we're going to control remotely.
 Automato automato(1, NULL, 0, true);
 
+// the automato we're going to control remotely.
 uint8_t serveraddr(2);
 
 bool on;
