@@ -22,6 +22,8 @@ uint8_t serveraddr(2);
 
 bool on;
 
+uint8_t loops;
+
 void setup() 
 {
   pinMode(PIN_LORA_RST, INPUT); // Let the pin float.
@@ -50,12 +52,30 @@ void setup()
   pinMode(A1, INPUT);
   pinMode(A6, INPUT);
   pinMode(A7, INPUT);
+
+  loops = 0;
 }
 
 void loop()
 {
+  // Serial.print("loop: ");
+  // Serial.println(loops);
+  // loops++;
+  
   automato.doSerial();
 
+/*  if (on){
+    Serial.println("on");
+    digitalWrite(PIN_LED, 1);
+  }
+  else
+  {
+    Serial.println("off");
+    digitalWrite(PIN_LED, 0);
+  }
 
+  on = !on;
 
+  delay(500);
+*/
 }
