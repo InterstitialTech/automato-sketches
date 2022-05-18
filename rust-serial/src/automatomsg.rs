@@ -162,7 +162,7 @@ pub fn payloadSize(p: &Payload) -> usize {
     match PayloadType::from_u8(p.payload_type) {
         Some(pt) => match pt {
             PayloadType::PtAck => size_of::<u8>(),
-            PayloadType::PtFail => size_of::<u8>(),
+            PayloadType::PtFail => size_of::<u8>() + size_of::<u8>(),
             PayloadType::PtPinmode => size_of::<u8>() + size_of::<Pinmode>(),
             PayloadType::PtReadpin => size_of::<u8>() + size_of::<u8>(),
             PayloadType::PtReadpinreply => size_of::<u8>() + size_of::<Pinval>(),
@@ -177,7 +177,7 @@ pub fn payloadSize(p: &Payload) -> usize {
                 size_of::<u8>()
                     + size_of::<u16>()
                     + size_of::<u8>()
-                    + p.data.readmemreply.length as usize
+                    + p.data.writemem.length as usize
             },
             PayloadType::PtReadinfo => size_of::<u8>(),
             PayloadType::PtReadinforeply => size_of::<u8>() + size_of::<RemoteInfo>(),

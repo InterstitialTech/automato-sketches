@@ -85,113 +85,186 @@ fn err_main() -> Result<(), serial::Error> {
     };
 
     unsafe {
-        automatomsg::setup_readpinreply(&mut mutmsg.payload, 26, 1);
-        let mut onfile = File::create("readpinreply.bin")?;
-        onfile.write(&onmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
-    }
-
-    unsafe {
         automatomsg::setup_ack(&mut mutmsg.payload);
         let mut onfile = File::create("ack.bin")?;
-        onfile.write(&onmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+        onfile.write(&mutmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+
+        println!("setup_ack: {}", automatomsg::payloadSize(&mutmsg.payload));
     }
 
     unsafe {
         automatomsg::setup_fail(&mut mutmsg.payload, ResultCode::RcInvalidRhRouterError);
         let mut onfile = File::create("fail.bin")?;
-        onfile.write(&onmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+        onfile.write(&mutmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+
+        println!("setup_fail: {}", automatomsg::payloadSize(&mutmsg.payload));
     }
 
     unsafe {
         automatomsg::setup_pinmode(&mut mutmsg.payload, 26, 2);
         let mut onfile = File::create("pinmode.bin")?;
-        onfile.write(&onmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+        onfile.write(&mutmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+
+        println!(
+            "setup_pinmode: {}",
+            automatomsg::payloadSize(&mutmsg.payload)
+        );
     }
 
     unsafe {
         automatomsg::setup_readpin(&mut mutmsg.payload, 22);
         let mut onfile = File::create("readpin.bin")?;
-        onfile.write(&onmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+        onfile.write(&mutmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+
+        println!(
+            "setup_readpin: {}",
+            automatomsg::payloadSize(&mutmsg.payload)
+        );
     }
 
     unsafe {
         automatomsg::setup_readpinreply(&mut mutmsg.payload, 26, 1);
         let mut onfile = File::create("readpinreply.bin")?;
-        onfile.write(&onmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+        onfile.write(&mutmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+
+        println!(
+            "setup_readpinreply: {}",
+            automatomsg::payloadSize(&mutmsg.payload)
+        );
     }
 
     unsafe {
         automatomsg::setup_writepin(&mut mutmsg.payload, 15, 1);
         let mut onfile = File::create("writepin.bin")?;
-        onfile.write(&onmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+        onfile.write(&mutmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+
+        println!(
+            "setup_writepin: {}",
+            automatomsg::payloadSize(&mutmsg.payload)
+        );
     }
 
     unsafe {
         automatomsg::setup_readanalog(&mut mutmsg.payload, 27);
         let mut onfile = File::create("readanalog.bin")?;
-        onfile.write(&onmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+        onfile.write(&mutmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+
+        println!(
+            "setup_readanalog: {}",
+            automatomsg::payloadSize(&mutmsg.payload)
+        );
     }
 
     unsafe {
         automatomsg::setup_readanalogreply(&mut mutmsg.payload, 6, 500);
         let mut onfile = File::create("readanalogreply.bin")?;
-        onfile.write(&onmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+        onfile.write(&mutmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+
+        println!(
+            "setup_readanalogreply: {}",
+            automatomsg::payloadSize(&mutmsg.payload)
+        );
     }
 
     unsafe {
         automatomsg::setup_readmem(&mut mutmsg.payload, 1500, 75);
         let mut onfile = File::create("readmem.bin")?;
-        onfile.write(&onmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+        onfile.write(&mutmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+
+        println!(
+            "setup_readmem: {}",
+            automatomsg::payloadSize(&mutmsg.payload)
+        );
     }
 
     unsafe {
         let test = [1, 2, 3, 4, 5];
         automatomsg::setup_readmemreply(&mut mutmsg.payload, &test);
         let mut onfile = File::create("readmemreply.bin")?;
-        onfile.write(&onmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+        onfile.write(&mutmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+
+        println!(
+            "setup_readmemreply: {}",
+            automatomsg::payloadSize(&mutmsg.payload)
+        );
     }
 
     unsafe {
-        let test = [1, 2, 3, 4, 5];
+        let test = [5, 4, 3, 2, 1];
         automatomsg::setup_writemem(&mut mutmsg.payload, 5678, &test);
         let mut onfile = File::create("writemem.bin")?;
-        onfile.write(&onmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+        onfile.write(&mutmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+
+        println!(
+            "setup_writemem: {}",
+            automatomsg::payloadSize(&mutmsg.payload)
+        );
     }
 
     unsafe {
         automatomsg::setup_readinfo(&mut mutmsg.payload);
         let mut onfile = File::create("readinfo.bin")?;
-        onfile.write(&onmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+        onfile.write(&mutmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+
+        println!(
+            "setup_readinfo: {}",
+            automatomsg::payloadSize(&mutmsg.payload)
+        );
     }
 
     unsafe {
         automatomsg::setup_readinforeply(&mut mutmsg.payload, 1.1, 5678, 5000);
         let mut onfile = File::create("readinforeply.bin")?;
-        onfile.write(&onmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+        onfile.write(&mutmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+
+        println!(
+            "setup_readinforeply: {}",
+            automatomsg::payloadSize(&mutmsg.payload)
+        );
     }
 
     unsafe {
         automatomsg::setup_readhumidity(&mut mutmsg.payload);
         let mut onfile = File::create("readhumidity.bin")?;
-        onfile.write(&onmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+        onfile.write(&mutmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+
+        println!(
+            "setup_readhumidity: {}",
+            automatomsg::payloadSize(&mutmsg.payload)
+        );
     }
 
     unsafe {
         automatomsg::setup_readhumidityreply(&mut mutmsg.payload, 45.7);
         let mut onfile = File::create("readhumidityreply.bin")?;
-        onfile.write(&onmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+        onfile.write(&mutmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+
+        println!(
+            "setup_readhumidityreply: {}",
+            automatomsg::payloadSize(&mutmsg.payload)
+        );
     }
 
     unsafe {
         automatomsg::setup_readtemperature(&mut mutmsg.payload);
         let mut onfile = File::create("readtemperature.bin")?;
-        onfile.write(&onmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+        onfile.write(&mutmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+
+        println!(
+            "setup_readtemperature: {}",
+            automatomsg::payloadSize(&mutmsg.payload)
+        );
     }
 
     unsafe {
         automatomsg::setup_readtemperaturereply(&mut mutmsg.payload, 98.6);
         let mut onfile = File::create("readtemperaturereply.bin")?;
-        onfile.write(&onmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+        onfile.write(&mutmsg.buf[0..automatomsg::payloadSize(&mutmsg.payload)]);
+
+        println!(
+            "setup_readtemperaturereply: {}",
+            automatomsg::payloadSize(&mutmsg.payload)
+        );
     }
 
     let mut onfile = File::create("onmsg.bin")?;
@@ -207,6 +280,7 @@ fn err_main() -> Result<(), serial::Error> {
     //
     let mut on = true;
 
+    /*
     loop {
         unsafe {
             println!("on {}", on);
@@ -253,4 +327,6 @@ fn err_main() -> Result<(), serial::Error> {
         //     Err(e) => println!("err: {}", e),
         // }
     }
+    */
+    Ok(())
 }
