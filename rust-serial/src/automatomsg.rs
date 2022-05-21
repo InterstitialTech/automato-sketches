@@ -25,7 +25,7 @@ pub enum PayloadType {
     PtReadtemperaturereply = 14,
     PtReadanalog = 15,
     PtReadanalogreply = 16,
-    PtCount = 17, // not a payload type; just the number of payload types.
+    //    PtCount = 17, // not a payload type; just the number of payload types.
 }
 
 #[derive(Clone, Copy)]
@@ -126,6 +126,7 @@ pub struct Message {
     pub data: Payload,
 }
 
+#[derive(Clone, Copy)]
 #[repr(C)]
 #[repr(packed)]
 pub union Msgbuf {
@@ -185,7 +186,7 @@ pub fn payloadSize(p: &Payload) -> usize {
             PayloadType::PtReadhumidityreply => size_of::<u8>() + size_of::<f32>(),
             PayloadType::PtReadtemperature => size_of::<u8>(),
             PayloadType::PtReadtemperaturereply => size_of::<u8>() + size_of::<f32>(),
-            PayloadType::PtCount => 0,
+            // PayloadType::PtCount => 0,
         },
         None => 0,
     }
@@ -252,7 +253,7 @@ pub fn setup_readmem(p: &mut Payload, address: u16, length: u8) {
 
 pub fn setup_readmemreply(p: &mut Payload, mem: &[u8]) -> ResultCode {
     p.payload_type = PayloadType::PtReadmemreply as u8;
-    if (mem.len() <= MAX_READMEM) {
+    if mem.len() <= MAX_READMEM {
         p.data.readmemreply.length = mem.len() as u8;
         unsafe {
             p.data.readmemreply.data[0..mem.len()].copy_from_slice(&mem);
@@ -265,7 +266,7 @@ pub fn setup_readmemreply(p: &mut Payload, mem: &[u8]) -> ResultCode {
 
 pub fn setup_writemem(p: &mut Payload, address: u16, mem: &[u8]) -> ResultCode {
     p.payload_type = PayloadType::PtWritemem as u8;
-    if (mem.len() <= MAX_WRITEMEM) {
+    if mem.len() <= MAX_WRITEMEM {
         p.data.writemem.address = address;
         p.data.writemem.length = mem.len() as u8;
         unsafe {
@@ -304,4 +305,138 @@ pub fn setup_readtemperature(p: &mut Payload) {
 pub fn setup_readtemperaturereply(p: &mut Payload, temperature: f32) {
     p.payload_type = PayloadType::PtReadtemperaturereply as u8;
     p.data.f = temperature;
+}
+
+pub unsafe fn print_Payload(p: &Payload) {
+    println!("message payload");
+
+    match PayloadType::from_u8(p.payload_type) {
+        None => println!("invalid type: {}", p.payload_type),
+        Some(pt) => {
+            match pt {
+                PayloadType::PtAck => {
+                    println!("PtAck");
+                }
+                PayloadType::PtFail => {
+                    println!("PtFail; ");
+                    println!("code: {}", { p.data.failcode });
+                    // println!(resultString((ResultCode)p.data.failcode));
+                }
+                PayloadType::PtPinmode => {
+                    println!("PtPinmode");
+                    println!("pin: {}", { p.data.pinmode.pin });
+                    println!("mode: {}", { p.data.pinmode.mode });
+                }
+                PayloadType::PtReadpin => {
+                    println!("PtReadpin");
+                    println!("pin: {}", { p.data.pin });
+                }
+                PayloadType::PtReadpinreply => {
+                    println!("PtReadpinreply");
+                    println!("pin: {}", { p.data.pinval.pin });
+                    println!("state: {}", { p.data.pinval.state });
+                }
+                PayloadType::PtWritepin => {
+                    println!("PtWritepin");
+                    println!("pin: {}", { p.data.pinval.pin });
+                    println!("state: {}", { p.data.pinval.state });
+                }
+                PayloadType::PtReadanalog => {
+                    println!("PtReadanalog");
+                    println!("pin: {}", { p.data.pin });
+                }
+                PayloadType::PtReadanalogreply => {
+                    println!("PtReadanalogreply");
+                    println!("pin: {}", { p.data.pin });
+                    println!("state: {}", { p.data.analogpinval.state });
+                }
+                PayloadType::PtReadmem => {
+                    println!("PtReadmem");
+                    println!("address{}", { p.data.readmem.address });
+                    println!("length{}", { p.data.readmem.length });
+                }
+                PayloadType::PtReadmemreply => {
+                    println!("PtReadmemreply");
+                    println!("length: {}", { p.data.readmemreply.length });
+                    println!("mem: ");
+                    for i in 0..p.data.readmemreply.length as usize {
+                        let c = p.data.readmemreply.data[i];
+                        println!("{}, {:#X}", c, c);
+                    }
+                    // let mut iter =
+                    //     p.data.readmemreply.data[0..p.data.readmemreply.length].into_iter();
+                    /*                    for c in p.data.readmemreply.data[0..p.data.readmemreply.length] {
+                                            println!("{}, {{:#X}", c, c});
+                                        }
+                    */
+                    // for c in p.data.readmemreply.data[0..p.data.readmemreply.length as usize] {
+                    //     println!("{}, {{:#X}", c, c});
+                    // }
+                    // for (int i = 0; i < p.data.readmemreply.length; ++i) {
+                    //     println!(p.data.readmemreply.data[i], HE{}X, {});
+                    // }
+                }
+                PayloadType::PtWritemem => {
+                    println!("PtWritemem");
+                    println!("address {}", { p.data.writemem.address });
+                    println!("length {}", { p.data.writemem.length });
+                    println!("mem: ");
+                    // for c in p.data.writemem.data[0..p.data.writemem.length] {
+                    //     println!("{}, {{:#X}", c, c});
+                    // }
+                    for i in 0..p.data.writemem.length as usize {
+                        let c = p.data.writemem.data[i];
+                        println!("{}, {:#X}", c, c);
+                    }
+                }
+                /*
+                PayloadType::PtReadmemreply => {
+                   println!("PtReadmemreply");
+                   println!("length: {}", {});
+                   println!(p.data.readmemreply.length);
+                   println!("mem: {}", {});
+                   for (int i = 0; i < p.data.readmemreply.length; ++i) {
+                       println!(p.data.readmemreply.data[i], HE{}X, {});
+                   }
+                   println!();
+                }
+                PayloadType::PtWritemem => {
+                   println!("PtWritemem");
+                   println!("address {}", {});
+                   println!(p.data.writemem.address);
+                   println!("length {}", {});
+                   println!(p.data.writemem.length);
+                   println!("mem: {}", {});
+                   for (int i = 0; i < p.data.writemem.length; ++i) {
+                       println!(p.data.writemem.data[i], HE{}X, {});
+                   }
+                   println!();
+                }
+                */
+                PayloadType::PtReadinfo => {
+                    println!("PtReadinfo");
+                }
+                PayloadType::PtReadinforeply => {
+                    println!("PtReadinforeply");
+                    println!("protoversion:{}", { p.data.remoteinfo.protoversion });
+                    println!("macAddress:{}", { p.data.remoteinfo.macAddress });
+                    println!("datalen:{}", { p.data.remoteinfo.datalen });
+                }
+                PayloadType::PtReadhumidity => {
+                    println!("PtReadhumidity");
+                }
+                PayloadType::PtReadhumidityreply => {
+                    println!("PtReadhumidityreply");
+                    println!("humidity:{}", { p.data.f });
+                }
+                PayloadType::PtReadtemperature => {
+                    println!("PtReadtemperature");
+                }
+                PayloadType::PtReadtemperaturereply => {
+                    println!("PtReadtemperaturereply");
+                    println!("temperature:{}", { p.data.f });
+                }
+            }
+        }
+    }
 }
