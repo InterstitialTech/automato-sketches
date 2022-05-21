@@ -68,13 +68,4 @@ void loop()
     Serial.print("error code:");
     Serial.println(ar.resultCode());
   }
-
-  Serial.print("A0 A1 A6 A7: ");
-  Serial.print(digitalRead(A0));
-  Serial.print(" ");
-  Serial.print(digitalRead(A1));
-  Serial.print(" ");
-  Serial.print(analogRead(A6));
-  Serial.print(" ");
-  Serial.println(digitalRead(A7));
 }

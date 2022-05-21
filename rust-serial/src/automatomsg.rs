@@ -69,7 +69,7 @@ pub struct Readmem {
     pub length: u8,
 }
 
-const RH_RF95_MAX_MESSAGE_LEN: usize = 251; // 255 - 4.
+pub const RH_RF95_MAX_MESSAGE_LEN: usize = 251; // 255 - 4.
 
 // #define MAX_WRITEMEM RH_RF95_MAX_MESSAGE_LEN - sizeof(u16) - sizeof(u8) - sizeof(u8)
 const MAX_WRITEMEM: usize = 247;
@@ -363,56 +363,17 @@ pub unsafe fn print_Payload(p: &Payload) {
                         let c = p.data.readmemreply.data[i];
                         println!("{}, {:#X}", c, c);
                     }
-                    // let mut iter =
-                    //     p.data.readmemreply.data[0..p.data.readmemreply.length].into_iter();
-                    /*                    for c in p.data.readmemreply.data[0..p.data.readmemreply.length] {
-                                            println!("{}, {{:#X}", c, c});
-                                        }
-                    */
-                    // for c in p.data.readmemreply.data[0..p.data.readmemreply.length as usize] {
-                    //     println!("{}, {{:#X}", c, c});
-                    // }
-                    // for (int i = 0; i < p.data.readmemreply.length; ++i) {
-                    //     println!(p.data.readmemreply.data[i], HE{}X, {});
-                    // }
                 }
                 PayloadType::PtWritemem => {
                     println!("PtWritemem");
                     println!("address {}", { p.data.writemem.address });
                     println!("length {}", { p.data.writemem.length });
                     println!("mem: ");
-                    // for c in p.data.writemem.data[0..p.data.writemem.length] {
-                    //     println!("{}, {{:#X}", c, c});
-                    // }
                     for i in 0..p.data.writemem.length as usize {
                         let c = p.data.writemem.data[i];
                         println!("{}, {:#X}", c, c);
                     }
                 }
-                /*
-                PayloadType::PtReadmemreply => {
-                   println!("PtReadmemreply");
-                   println!("length: {}", {});
-                   println!(p.data.readmemreply.length);
-                   println!("mem: {}", {});
-                   for (int i = 0; i < p.data.readmemreply.length; ++i) {
-                       println!(p.data.readmemreply.data[i], HE{}X, {});
-                   }
-                   println!();
-                }
-                PayloadType::PtWritemem => {
-                   println!("PtWritemem");
-                   println!("address {}", {});
-                   println!(p.data.writemem.address);
-                   println!("length {}", {});
-                   println!(p.data.writemem.length);
-                   println!("mem: {}", {});
-                   for (int i = 0; i < p.data.writemem.length; ++i) {
-                       println!(p.data.writemem.data[i], HE{}X, {});
-                   }
-                   println!();
-                }
-                */
                 PayloadType::PtReadinfo => {
                     println!("PtReadinfo");
                 }

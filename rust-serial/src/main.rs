@@ -1,17 +1,20 @@
+use clap::{Arg, Command, SubCommand};
 use num_derive::{FromPrimitive, ToPrimitive};
 use num_traits::{FromPrimitive, ToPrimitive};
+use simple_error::bail;
 use std::io::{Read, Write};
 mod automatomsg;
 use automatomsg::{
     AnalogPinval, Message, Payload, PayloadData, PayloadType, Pinmode, Pinval, Readmem,
     ReadmemReply, RemoteInfo, ResultCode, Writemem,
 };
+use num_derive;
+use std::error::Error;
 use std::fs::File;
 use std::mem::size_of;
+use std::str::FromStr;
 use std::thread::sleep;
 use std::time::Duration;
-
-use num_derive;
 
 use serial::{BaudRate, CharSize, FlowControl, Parity, PortSettings, SerialPort, StopBits};
 
@@ -24,7 +27,183 @@ fn main() {
     }
 }
 
-fn err_main() -> Result<(), serial::Error> {
+fn err_main() -> Result<(), Box<dyn Error>> {
+    let matches = clap::App::new("automatomsg")
+        .version("1.0")
+        .author("Interstitial Technologies PBC")
+        .about("cli for testing automato messsages over serial.")
+        .arg(
+            Arg::with_name("port")
+                .short('p')
+                .long("port")
+                .value_name("FILE")
+                .help("serial port")
+                .default_value("/dev/ttyUSB0")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("baud")
+                .short('b')
+                .long("baud")
+                .value_name("NUMBER")
+                .help(
+                    "baud rate: 110, 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200",
+                )
+                .default_value("115200")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("address")
+                .short('a')
+                .long("address")
+                .value_name("0-255")
+                .help("lora network address of an automato")
+                .required(true)
+                .takes_value(true),
+        )
+        .subcommand_required(true)
+        .subcommand(
+            Command::new("writepin")
+                .about("write 0 or 1 to pin")
+                .arg(Arg::with_name("pin").value_name("PIN").takes_value(true))
+                .arg(
+                    Arg::with_name("value")
+                        .value_name("1 or 0")
+                        .takes_value(true),
+                ),
+        )
+        .subcommand(
+            Command::new("pinmode")
+                .about("write 0 or 1 to pin")
+                .arg(Arg::with_name("pin").value_name("PIN").takes_value(true))
+                .arg(
+                    Arg::with_name("value")
+                        .value_name("1 or 0")
+                        .takes_value(true),
+                ),
+        )
+        .subcommand(
+            Command::new("readpin")
+                .about("query pin")
+                .arg(Arg::with_name("pin").value_name("PIN").takes_value(true)),
+        )
+        .subcommand(
+            Command::new("readanalog")
+                .about("query pin")
+                .arg(Arg::with_name("pin").value_name("PIN").takes_value(true)),
+        )
+        .subcommand(Command::new("readinfo").about("read automato general info"))
+        .subcommand(Command::new("readhumidity").about("read automato humidity"))
+        .subcommand(Command::new("readtemperature").about("read automato temperature"))
+        .get_matches();
+
+    let (port, baud, automatoaddr) = match (
+        matches.value_of("port"),
+        matches.value_of("baud"),
+        matches.value_of("address"),
+    ) {
+        (Some(port), Some(baudstr), Some(addrstr)) => {
+            let baud = BaudRate::from_speed(baudstr.parse::<usize>()?);
+            let addr = addrstr.parse::<u8>()?;
+            (port, baud, addr)
+        }
+        _ => bail!("arg failure"),
+    };
+
+    let mut mb = automatomsg::Msgbuf {
+        buf: [0; automatomsg::RH_RF95_MAX_MESSAGE_LEN],
+    };
+
+    let mut retmsg = mb.clone();
+
+    match matches.subcommand() {
+        Some(("writepin", sub_matches)) => {
+            let (pin, val) = match (sub_matches.value_of("pin"), sub_matches.value_of("value")) {
+                (Some(pinstr), Some(valstr)) => (pinstr.parse::<u8>()?, valstr.parse::<u8>()?),
+                _ => bail!("arg failure"),
+            };
+
+            unsafe { automatomsg::setup_writepin(&mut mb.payload, pin, val) };
+        }
+        Some(("pinmode", sub_matches)) => {
+            let (pin, val) = match (sub_matches.value_of("pin"), sub_matches.value_of("value")) {
+                (Some(pinstr), Some(valstr)) => (pinstr.parse::<u8>()?, valstr.parse::<u8>()?),
+                _ => bail!("arg failure"),
+            };
+
+            unsafe { automatomsg::setup_pinmode(&mut mb.payload, pin, val) };
+        }
+        Some(("readpin", sub_matches)) => {
+            let pin = match sub_matches.value_of("pin") {
+                Some(pinstr) => pinstr.parse::<u8>()?,
+                _ => bail!("arg failure"),
+            };
+            unsafe { automatomsg::setup_readpin(&mut mb.payload, pin) };
+        }
+        Some(("readanalog", sub_matches)) => {
+            let pin = match sub_matches.value_of("pin") {
+                Some(pinstr) => pinstr.parse::<u8>()?,
+                _ => bail!("arg failure"),
+            };
+            unsafe { automatomsg::setup_readanalog(&mut mb.payload, pin) };
+        }
+        Some(("readinfo", sub_matches)) => {
+            unsafe { automatomsg::setup_readinfo(&mut mb.payload) };
+        }
+        Some(("readhumidity", sub_matches)) => {
+            unsafe { automatomsg::setup_readhumidity(&mut mb.payload) };
+        }
+        Some(("readtemperature", sub_matches)) => {
+            unsafe { automatomsg::setup_readtemperature(&mut mb.payload) };
+        }
+        meh => {
+            bail!("unhandled command! {:?}", meh)
+        }
+    }
+    // Readpin = 3,
+    // Writepin = 5,
+
+    // Pinmode = 2,
+    // Readmem = 6,
+    // Writemem = 8,
+    // Readinfo = 9,
+    // Readhumidity = 11,
+    // Readtemperature = 13,
+    // Readanalog = 15,
+
+    // Ack = 0,
+    // Fail = 1,
+    // Readpinreply = 4,
+    // Readmemreply = 7,
+    // Readinforeply = 10,
+    // Readhumidityreply = 12,
+    // Readtemperaturereply = 14,
+    // Readanalogreply = 16,
+    let mut port = serial::open(port)?;
+
+    let ps = PortSettings {
+        baud_rate: baud,
+        char_size: CharSize::Bits8,
+        parity: Parity::ParityNone,
+        stop_bits: StopBits::Stop1,
+        flow_control: FlowControl::FlowSoftware,
+    };
+    port.configure(&ps)?;
+
+    unsafe {
+        writeMessage(&mut port, &mb, automatoaddr)?;
+
+        let mut fromid: u8 = 0;
+        sleep(Duration::from_millis(20));
+        readMessage(&mut port, &mut retmsg, &mut fromid);
+
+        println!("reply from: {}", fromid);
+        automatomsg::print_Payload(&retmsg.payload);
+    }
+    Ok(())
+}
+
+fn old_main() -> Result<(), Box<dyn Error>> {
     let mut port = serial::open("/dev/ttyUSB0")?;
 
     let ps = PortSettings {
@@ -115,9 +294,8 @@ fn err_main() -> Result<(), serial::Error> {
             }
 
             let mut fromid: u8 = 0;
-            readMessage(&mut port, &mut retmsg, &mut fromid);
 
-            println!("payloadsize: {}", automatomsg::payloadSize(&retmsg.payload));
+            readMessage(&mut port, &mut retmsg, &mut fromid);
         }
 
         on = !on;
