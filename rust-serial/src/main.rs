@@ -95,6 +95,34 @@ fn err_main() -> Result<(), Box<dyn Error>> {
         .subcommand(Command::new("readinfo").about("read automato general info"))
         .subcommand(Command::new("readhumidity").about("read automato humidity"))
         .subcommand(Command::new("readtemperature").about("read automato temperature"))
+        .subcommand(
+            Command::new("writemem")
+                .about("write hex data to automato memory")
+                .arg(
+                    Arg::with_name("address")
+                        .value_name("NUMBER")
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("value")
+                        .value_name("hex string")
+                        .takes_value(true),
+                ),
+        )
+        .subcommand(
+            Command::new("readmem")
+                .about("read hex data from automato memory")
+                .arg(
+                    Arg::with_name("address")
+                        .value_name("NUMBER")
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("length")
+                        .value_name("NUMBER")
+                        .takes_value(true),
+                ),
+        )
         .get_matches();
 
     let (port, baud, automatoaddr) = match (
@@ -156,6 +184,27 @@ fn err_main() -> Result<(), Box<dyn Error>> {
         Some(("readtemperature", sub_matches)) => {
             unsafe { automatomsg::setup_readtemperature(&mut mb.payload) };
         }
+        Some(("writemem", sub_matches)) => {
+            let (addr, val) = match (
+                sub_matches.value_of("address"),
+                sub_matches.value_of("value"),
+            ) {
+                (Some(addrstr), Some(valstr)) => (addrstr.parse::<u16>()?, hex::decode(valstr)?),
+                _ => bail!("arg failure"),
+            };
+
+            unsafe { automatomsg::setup_writemem(&mut mb.payload, addr, val.as_slice()) };
+        }
+        Some(("readmem", sub_matches)) => {
+            let (addr, len) = match (
+                sub_matches.value_of("address"),
+                sub_matches.value_of("length"),
+            ) {
+                (Some(addrstr), Some(lenstr)) => (addrstr.parse::<u16>()?, lenstr.parse::<u8>()?),
+                _ => bail!("arg failure"),
+            };
+            unsafe { automatomsg::setup_readmem(&mut mb.payload, addr, len) };
+        }
         meh => {
             bail!("unhandled command! {:?}", meh)
         }
@@ -194,7 +243,7 @@ fn err_main() -> Result<(), Box<dyn Error>> {
         writeMessage(&mut port, &mb, automatoaddr)?;
 
         let mut fromid: u8 = 0;
-        sleep(Duration::from_millis(20));
+        sleep(Duration::from_millis(100));
         readMessage(&mut port, &mut retmsg, &mut fromid);
 
         println!("reply from: {}", fromid);

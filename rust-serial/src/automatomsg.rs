@@ -358,20 +358,21 @@ pub unsafe fn print_Payload(p: &Payload) {
                 PayloadType::PtReadmemreply => {
                     println!("PtReadmemreply");
                     println!("length: {}", { p.data.readmemreply.length });
-                    println!("mem: ");
+                    println!("values");
+                    println!("offset: decimal, hex ");
                     for i in 0..p.data.readmemreply.length as usize {
                         let c = p.data.readmemreply.data[i];
-                        println!("{}, {:#X}", c, c);
+                        println!("{}: {}, {:#X}", i, c, c);
                     }
                 }
                 PayloadType::PtWritemem => {
                     println!("PtWritemem");
                     println!("address {}", { p.data.writemem.address });
                     println!("length {}", { p.data.writemem.length });
-                    println!("mem: ");
+                    println!("offset: decimal, hex ");
                     for i in 0..p.data.writemem.length as usize {
                         let c = p.data.writemem.data[i];
-                        println!("{}, {:#X}", c, c);
+                        println!("{}: {}, {:#X}", i, c, c);
                     }
                 }
                 PayloadType::PtReadinfo => {
