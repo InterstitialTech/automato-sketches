@@ -28,9 +28,9 @@ fn main() {
 }
 
 fn err_main() -> Result<(), Box<dyn Error>> {
-    let matches = clap::App::new("automatomsg")
+    let matches = clap::App::new("matomsg")
         .version("1.0")
-        .author("Interstitial Technologies PBC")
+        .author("Automato Enterprises")
         .about("cli for testing automato messsages over serial.")
         .arg(
             Arg::with_name("port")
