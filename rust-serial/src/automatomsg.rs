@@ -25,7 +25,6 @@ pub enum PayloadType {
     PtReadtemperaturereply = 14,
     PtReadanalog = 15,
     PtReadanalogreply = 16,
-    //    PtCount = 17, // not a payload type; just the number of payload types.
 }
 
 #[derive(Clone, Copy)]
@@ -186,21 +185,10 @@ pub fn payloadSize(p: &Payload) -> usize {
             PayloadType::PtReadhumidityreply => size_of::<u8>() + size_of::<f32>(),
             PayloadType::PtReadtemperature => size_of::<u8>(),
             PayloadType::PtReadtemperaturereply => size_of::<u8>() + size_of::<f32>(),
-            // PayloadType::PtCount => 0,
         },
         None => 0,
     }
 }
-
-// AutomatoResult arFromReply(Payload &p)
-// {
-//     if (p.payload_type == PtFail)
-//         return AutomatoResult((ResultCode)p.failcode);
-//     else if (isReply((PayloadType)p.type))
-//         return AutomatoResult(rc_ok);
-//     else
-//         return AutomatoResult(rc_invalid_reply_message);
-// }
 
 pub fn setup_ack(p: &mut Payload) {
     p.payload_type = PayloadType::PtAck as u8;

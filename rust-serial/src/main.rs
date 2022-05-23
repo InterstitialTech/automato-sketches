@@ -209,25 +209,7 @@ fn err_main() -> Result<(), Box<dyn Error>> {
             bail!("unhandled command! {:?}", meh)
         }
     }
-    // Readpin = 3,
-    // Writepin = 5,
 
-    // Pinmode = 2,
-    // Readmem = 6,
-    // Writemem = 8,
-    // Readinfo = 9,
-    // Readhumidity = 11,
-    // Readtemperature = 13,
-    // Readanalog = 15,
-
-    // Ack = 0,
-    // Fail = 1,
-    // Readpinreply = 4,
-    // Readmemreply = 7,
-    // Readinforeply = 10,
-    // Readhumidityreply = 12,
-    // Readtemperaturereply = 14,
-    // Readanalogreply = 16,
     let mut port = serial::open(port)?;
 
     let ps = PortSettings {
@@ -264,9 +246,6 @@ fn old_main() -> Result<(), Box<dyn Error>> {
     };
     port.configure(&ps)?;
 
-    // let mut s = String::new();
-    // let mut buf = Vec::<u8>::new();
-
     let PIN_LED: u8 = 26;
 
     let onmsg = automatomsg::Msgbuf {
@@ -292,15 +271,6 @@ fn old_main() -> Result<(), Box<dyn Error>> {
         },
     };
 
-    println!("pinvalsz: {}", size_of::<Pinval>());
-    println!("PayloadType: {}", size_of::<PayloadType>()); // size 4!
-
-    let sz = size_of::<Pinval>() + size_of::<u8>();
-
-    println!("sz: {}", sz);
-
-    // println!("ptCoutn: {}", automatomsg::PayloadType::PtCount as u8);
-
     unsafe {
         println!("payload_type: {}", onmsg.payload.payload_type);
     }
@@ -312,29 +282,11 @@ fn old_main() -> Result<(), Box<dyn Error>> {
 
     let id: u8 = 1;
 
-    // mb.payload.payload_type = automatomsg::pt_code(automatomsg::PayloadType::PtWritepin);
-    // mb.payload.data.pin = 20;
-    // mb.payload.data.state = 1;
-    //
     let mut on = true;
 
     let mut retmsg = offmsg.clone();
 
     loop {
-        // unsafe {
-        //     println!("on {}", on);
-        //     if on {
-        //         port.write(&['m' as u8]);
-        //         port.write(&[id as u8]);
-        //         port.write(&[sz as u8]);
-        //         port.write(&onmsg.buf[0..sz + 1]);
-        //     } else {
-        //         port.write(&['m' as u8]);
-        //         port.write(&[id as u8]);
-        //         port.write(&[sz as u8]);
-        //         port.write(&offmsg.buf[0..sz + 1]);
-        //     }
-        // }
         unsafe {
             if on {
                 writeMessage(&mut port, &onmsg, id)?;
@@ -350,42 +302,7 @@ fn old_main() -> Result<(), Box<dyn Error>> {
         on = !on;
 
         sleep(Duration::from_millis(20));
-
-        // readmsg function.
-        // read 'm'
-        // read id?
-        // read len
-        // read rest.
-
-        /*
-        let mut monobuf = [0; 1];
-        while match port.read_exact(&mut monobuf) {
-            Ok(len) => {
-                println!("{} '{}'", monobuf[0] as u8, monobuf[0] as char);
-                // '\n' == 10
-                if monobuf[0] == 10 {
-                    println!("{}", s);
-                    s = "".to_string();
-                } else {
-                    s.push(monobuf[0] as char);
-                }
-                true
-            }
-            Err(e) => false,
-            // println!("err: {}", e),
-        } {}
-        */
-        // println!("onmsg: {}", size_of(onmsg));
-        // match port.read_to_end(&mut buf) {
-        //     Ok(len) => println!("read: {:?}", buf),
-        //     Err(e) => println!("err: {}", e),
-        // }
-        // match port.read_to_string(&mut s) {
-        //     Ok(len) => println!("read: {}", s),
-        //     Err(e) => println!("err: {}", e),
-        // }
     }
-    Ok(())
 }
 
 unsafe fn writeMessage(
