@@ -24,7 +24,7 @@ bool on;
 
 uint8_t loops;
 
-void setup() 
+void setup()
 {
   pinMode(PIN_LORA_RST, INPUT); // Let the pin float.
 
@@ -58,24 +58,5 @@ void setup()
 
 void loop()
 {
-  // Serial.print("loop: ");
-  // Serial.println(loops);
-  // loops++;
-  
   automato.doSerial();
-
-/*  if (on){
-    Serial.println("on");
-    digitalWrite(PIN_LED, 1);
-  }
-  else
-  {
-    Serial.println("off");
-    digitalWrite(PIN_LED, 0);
-  }
-
-  on = !on;
-
-  delay(500);
-*/
 }

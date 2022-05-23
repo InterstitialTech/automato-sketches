@@ -31,7 +31,7 @@ void setup()
   digitalWrite(PIN_TCH_CS, HIGH);
   pinMode(PIN_SD_CS, OUTPUT);
   digitalWrite(PIN_SD_CS, HIGH);
-  
+
   Serial.begin(115200);
 
   automato.init(915.0, 20);
@@ -60,7 +60,7 @@ AutomatoResult ar;
 
 void loop()
 {
-  if (!(ar = automato.doRemoteControl())) 
+  if (!(ar = automato.doRemoteControl()))
   {
     Serial.println("-------- failure ---------");
     Serial.println("error from doRemoteControl():");
