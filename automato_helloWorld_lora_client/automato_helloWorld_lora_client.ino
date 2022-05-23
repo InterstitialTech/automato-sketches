@@ -45,7 +45,6 @@ void setup() {
   tft.setRotation(1);
 
   update_timer = millis();
-
 }
 
 void updateLCD() {
@@ -128,7 +127,8 @@ void loop() {
       Serial.println("No reply, is rf95_server running?");
       lora_result = "NO REPLY";
     }
-  tft.println();
+
+    tft.println();
     
   }
   
