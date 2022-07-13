@@ -6,8 +6,6 @@
 const char* ssid     = "test6";
 const char* password = "123456789";
 
-// Set web server port number to 80
-// WiFiServer server(80);
 WiFiUDP udp;
 
 // Variable to store the HTTP request
