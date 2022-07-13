@@ -55,18 +55,16 @@ void setup() {
 
     Serial.println(showWlStatus(status));
 
-    // wait 10 seconds for connection:
+    // wait for connection:
     delay(3000);
   }
 
-  // once you are connected :
   Serial.print("You're connected to the network");
-
 }
 
 void loop() {
     Serial.print("wifi status:");
-    Serial.println(WiFi.status());
+    Serial.println(showWlStatus(WiFi.status()));
     delay( 1000 );
     Serial.println("sending packet:");
     udp.beginPacket( { 192, 168, 4, 1 }, 8888 );

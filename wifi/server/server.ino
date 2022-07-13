@@ -22,6 +22,7 @@ void setup() {
   WiFi.softAP(ssid, password);
 
   // AP means access point, which includes a dhcp server.
+  // in LR mode, normal wifi devices will not be able to see the access point!
   ESP_ERROR_CHECK( esp_wifi_set_protocol( WIFI_IF_AP, WIFI_PROTOCOL_LR ) );
 
   // ESP_ERROR_CHECK( esp_wifi_set_protocol( ESP_IF_WIFI_AP,
