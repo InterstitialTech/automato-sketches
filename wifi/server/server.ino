@@ -21,12 +21,14 @@ void setup() {
   // Remove the password parameter, if you want the AP (Access Point) to be open
   WiFi.softAP(ssid, password);
 
-  // ESP_ERROR_CHECK( esp_wifi_set_protocol( WIFI_IF_AP, WIFI_PROTOCOL_LR ) );
-  ESP_ERROR_CHECK( esp_wifi_set_protocol( ESP_IF_WIFI_AP,
-                                          WIFI_PROTOCOL_11B | 
-                                          WIFI_PROTOCOL_11G |
-                                          WIFI_PROTOCOL_11N 
-                                          ) );    
+  // AP means access point, which includes a dhcp server.
+  ESP_ERROR_CHECK( esp_wifi_set_protocol( WIFI_IF_AP, WIFI_PROTOCOL_LR ) );
+
+  // ESP_ERROR_CHECK( esp_wifi_set_protocol( ESP_IF_WIFI_AP,
+  //                                         WIFI_PROTOCOL_11B |
+  //                                         WIFI_PROTOCOL_11G |
+  //                                         WIFI_PROTOCOL_11N
+  //                                         ) );
 
 
   IPAddress IP = WiFi.softAPIP();
