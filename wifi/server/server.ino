@@ -37,8 +37,10 @@ void setup() {
   udp.begin(8888);
 }
 
+int count = 0;
+
 void loop(){
-    delay(1000);
+    // delay(1000);
     IPAddress IP = WiFi.softAPIP();
     Serial.print("AP IP address: ");
     Serial.println(IP);
@@ -46,8 +48,10 @@ void loop(){
     if ( size == 0 )
         return;
     char c = udp.read();
-    Serial.print("character received: ");
-    Serial.println(c);
+    count++;
+    Serial.print("received: ");
+    Serial.print(count);
+    Serial.print(" packets");
     udp.flush();
 }
 

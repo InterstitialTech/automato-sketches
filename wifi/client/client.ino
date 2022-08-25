@@ -65,7 +65,7 @@ void setup() {
 void loop() {
     Serial.print("wifi status:");
     Serial.println(showWlStatus(WiFi.status()));
-    delay( 1000 );
+    // delay( 1000 );
     Serial.println("sending packet:");
     udp.beginPacket( { 192, 168, 4, 1 }, 8888 );
     udp.write( 'b' );
