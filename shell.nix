@@ -7,9 +7,12 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.mkShell {
     nativeBuildInputs = [
+      # pkgs.esptool-ck
       pkgs.python311Packages.pyserial
       pkgs.arduino-cli
       pkgs.screen
+      # pkgs.arduino-language-server
+      pkgs.clang-tools
     ];
 }
 
